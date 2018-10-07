@@ -28,6 +28,16 @@ bool isFloat(std::string s)
   return iss && iss.eof();  // Result converted to bool
 }
 
+bool within_limits(std::vector< double > joints){
+  double limits[6][2]={ {-2.967,2.967}, {-1.745,2.269}, {-3.491,1.222}, {-4.712,4.712}, {-2.269,2.269}, {-6.283,6.283} };
+  for(int i=0;i<6;i++){
+    if(joints[i]<limits[i][0] || joints[i]>limits[i][1]){
+      return false;
+    }
+  }
+  return true;
+}
+
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "workspace");
@@ -95,9 +105,10 @@ int main(int argc, char **argv)
     // The center of every voxels are stored in a vector
 
     sphere_discretization::SphereDiscretization sd;
-    float r = 1;
+    float r = 1.5;
     octomap::point3d origin = octomap::point3d(0, 0, 0);  // This point will be the base of the robot
     octomap::OcTree *tree = sd.generateBoxTree(origin, r, resolution);
+    //octomap::OcTree *tree = sd.generateSphereTree(origin, r, resolution);
     std::vector< octomap::point3d > new_data;
     ROS_INFO("Creating the box and discretizing with resolution: %f", resolution);
     int sphere_count = 0;
@@ -155,13 +166,20 @@ int main(int argc, char **argv)
     MultiMapPtr pose_col_filter;
     VectorOfVectors ik_solutions;
     ik_solutions.reserve( pose_col.size() );
-
+    
+//    std::ofstream log("/home/xyz/dev_ws/src/reuleaux/log");
     for (MultiVector::iterator it = pose_col.begin(); it != pose_col.end(); ++it)
     {
       static std::vector< double > joints(6);
       int solns;
-      if (k.isIKSuccess(it->first, joints, solns))
-      {
+      if (k.isIKSuccess(it->first, joints, solns)){
+//        if(!within_limits(joints)) {
+//          for(int i=0;i<6;i++){
+//            log<<joints[i]<<" , ";
+//          }
+//          log<<endl;
+//          continue;
+//        }
         pose_col_filter.insert( std::make_pair( it->second, &(it->first)));
         ik_solutions.push_back(joints);
         // cout<<it->first[0]<<" "<<it->first[1]<<" "<<it->first[2]<<" "<<it->first[3]<<" "<<it->first[4]<<"

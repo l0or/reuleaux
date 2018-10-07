@@ -13,6 +13,7 @@
 #include <map_creator/kinematics.h>
 #include<map_creator/hdf5_dataset.h>
 
+
 //struct stat st;
 
 bool isFloat(std::string s)
@@ -21,6 +22,16 @@ bool isFloat(std::string s)
   float dummy;
   iss >> std::noskipws >> dummy;
   return iss && iss.eof();  // Result converted to bool
+}
+
+bool within_limits(std::vector< double > joints){
+  double limits[6][2]={ {-2.967,2.967}, {-1.745,2.269}, {-3.491,1.222}, {-4.712,4.712}, {-2.269,2.269}, {-6.283,6.283} };
+  for(int i=0;i<6;i++){
+    if(joints[i]<limits[i][0] || joints[i]>limits[i][1]){
+      return false;
+    }
+  }
+  return true;
 }
 
 int main(int argc, char **argv)
@@ -137,8 +148,14 @@ int main(int argc, char **argv)
       joints.resize(6);
       pose_col2.insert(std::pair< std::vector< double >, std::vector< double > >(it->second, it->first));
       int solns;
-      if (k.isIKSuccess(it->first, joints, solns))
-      {
+      if (k.isIKSuccess(it->first, joints, solns)){
+        if(!within_limits(joints)) {
+          for(int i=0;i<6;i++){
+            std::cout<<joints[i];
+          }
+          std::cout<<endl;
+          continue;
+        }
         pose_col_filter.insert(std::pair< std::vector< double >, std::vector< double > >(it->second, it->first));
         ik_solutions.push_back(joints);
       }

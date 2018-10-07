@@ -14,6 +14,17 @@ float Kinematics::SIGN(float x)
   return (x >= 0.0f) ? +1.0f : -1.0f;
 }
 
+bool within_limits(std::vector< double > joints){
+  double limits[6][2]={ {-2.967,2.967}, {-1.745,2.269}, {-3.491,1.222}, {-4.712,4.712}, {-2.269,2.269}, {-6.283,6.283} };
+  for(int i=0;i<6;i++){
+    if(joints[i]<limits[i][0] || joints[i]>limits[i][1]){
+      return false;
+    }
+  }
+  return true;
+}
+
+
 float Kinematics::NORM(float a, float b, float c, float d)
 {
   return sqrt(a * a + b * b + c * c + d * d);
@@ -186,17 +197,34 @@ bool Kinematics::isIKSuccess(const std::vector< double >& pose, std::vector< dou
   else
   {
     // cout<<"Found ik solutions: "<< num_of_solutions<<endl;
-    const IkSolutionBase< IKREAL_TYPE >& sol = solutions.GetSolution(1);
-    int this_sol_free_params = (int)sol.GetFree().size();
-    if( this_sol_free_params <= 0){
-      sol.GetSolution(&joints[0], NULL);
+//    const IkSolutionBase< IKREAL_TYPE >& sol = solutions.GetSolution(0);
+//    int this_sol_free_params = (int)sol.GetFree().size();
+//    if( this_sol_free_params <= 0){
+//      sol.GetSolution(&joints[0], NULL);
+//    }
+//    else{
+//      static std::vector< IKREAL_TYPE > vsolfree;
+//      vsolfree.resize(this_sol_free_params);
+//      sol.GetSolution(&joints[0], &vsolfree[0]);
+//    }
+//    return true;
+
+    for (int i = 0; i < num_of_solutions; ++i) {
+      const IkSolutionBase< IKREAL_TYPE >& sol = solutions.GetSolution(i);
+      int this_sol_free_params = (int)sol.GetFree().size();
+      if( this_sol_free_params <= 0){
+        sol.GetSolution(&joints[0], NULL);
+      }
+      else{
+        static std::vector< IKREAL_TYPE > vsolfree;
+        vsolfree.resize(this_sol_free_params);
+        sol.GetSolution(&joints[0], &vsolfree[0]);
+      }
+      if(within_limits(joints)){
+        return true;
+      }
     }
-    else{
-      static std::vector< IKREAL_TYPE > vsolfree;
-      vsolfree.resize(this_sol_free_params);
-      sol.GetSolution(&joints[0], &vsolfree[0]);
-    }
-    return true;
+    return false;
   }
 #else
   if (!b2success)

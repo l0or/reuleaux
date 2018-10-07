@@ -30,7 +30,10 @@ int main(int argc, char **argv)
     MultiMapPtr pose_col_filter;
     MapVecDoublePtr sphere_col;
     float res;
+    std::cout<<"fine 0"<<std::endl;
     h5.loadMapsFromDataset(pose_col_filter, sphere_col, res);
+    
+    std::cout<<"fine 1"<<std::endl;
 
     // Creating messages
     map_creator::WorkSpace ws;
@@ -60,7 +63,7 @@ int main(int argc, char **argv)
         }
         ws.WsSpheres.push_back(wss);
       }
-
+    std::cout<<"fine 2"<<std::endl;
     while (ros::ok())
     {
       workspace_pub.publish(ws);

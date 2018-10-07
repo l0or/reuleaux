@@ -134,6 +134,9 @@ void SphereDiscretization::make_sphere_poses(const octomap::point3d& origin, dou
     pose.position.x = r * position_vector[index].x + origin.x();
     pose.position.y = r * position_vector[index].y + origin.y();
     pose.position.z = r * position_vector[index].z + origin.z();
+//    pose.position.x =  origin.x();
+//    pose.position.y =  origin.y();
+//    pose.position.z =  origin.z();
     const tf2::Quaternion& quat = quaternion[index];
     pose.orientation.x = quat.x();
     pose.orientation.y = quat.y();

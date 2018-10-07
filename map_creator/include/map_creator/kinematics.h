@@ -3,7 +3,7 @@
 #define IKFAST_NO_MAIN
 
 #define IK_VERSION 61
-#include "mh5_ikfast.cpp"
+#include "irb1200_ikfast.cpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
